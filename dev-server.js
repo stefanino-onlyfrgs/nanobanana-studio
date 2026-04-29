@@ -6,7 +6,6 @@ const path = require("path");
 
 const {
   handleHealth,
-  handleSleep,
   handleGenerate,
   handleTestKey,
   handleAnalyzeVideo,
@@ -103,10 +102,6 @@ function createServer() {
     }
     if (req.method === "POST" && req.url === "/api/generate") {
       dispatch(req, res, handleGenerate);
-      return;
-    }
-    if (req.method === "POST" && req.url.startsWith("/api/sleep")) {
-      dispatch(req, res, handleSleep);
       return;
     }
     if (req.method === "POST" && req.url === "/api/test-key") {
