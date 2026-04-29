@@ -1,0 +1,24 @@
+{
+  "type": "web_service",
+  "name": "nanobanana-studio",
+  "ownerId": "tea-d7ous09f9bms73fh40vg",
+  "repo": "https://github.com/stefanino-onlyfrgs/nanobanana-studio",
+  "branch": "main",
+  "autoDeploy": "yes",
+  "serviceDetails": {
+    "env": "node",
+    "plan": "free",
+    "region": "frankfurt",
+    "buildCommand": "npm install --omit=dev",
+    "startCommand": "npm start",
+    "healthCheckPath": "/api/health",
+    "envSpecificDetails": {
+      "buildCommand": "npm install --omit=dev",
+      "startCommand": "npm start"
+    }
+  },
+  "envVars": [
+    { "key": "NODE_VERSION", "value": "20" },
+    { "key": "NODE_ENV", "value": "production" }
+  ]
+}
