@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#356b5f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Nano Banana 2 Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23356b5f'/%3E%3Ccircle cx='42' cy='22' r='8' fill='%23d7634b'/%3E%3Cpath d='M18 44c15 0 25-11 28-26 4 17-5 34-24 34-5 0-8-3-4-8z' fill='%23f6d46b'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-panel">
+        <p class="eyebrow">Vertex AI</p>
+        <h1>Nano Banana 2 Studio</h1>
+        <p class="lead">Workflow rapidi per persone, pose e background con libreria condivisa.</p>
+      </div>
+      <form class="settings" id="settingsForm" autocomplete="off" novalidate>
+        <section class="setting-group">
+          <div class="setting-head">
+            <h2>Connessione</h2>
+            <div class="button-row">
+              <button id="testApiKey" class="secondary compact" type="button">Test API</button>
+              <button id="toggleApiKey" class="secondary compact" type="button">Mostra key</button>
+            </div>
+          </div>
+          <div class="setting-grid connection-grid">
+            <label>
+              <span>API key Vertex</span>
+              <input id="apiKey" name="apiKey" type="password" placeholder="Incolla qui la tua API key">
+            </label>
+            <label>
+              <span>Endpoint</span>
+              <input id="apiEndpoint" name="apiEndpoint" value="https://aiplatform.googleapis.com">
+            </label>
+            <label>
+              <span>Motore</span>
+              <select id="providerMode" name="providerMode">
+                <option value="auto">Auto: Vertex poi Gemini</option>
+                <option value="vertex">Solo Vertex</option>
+                <option value="gemini">Solo Gemini API</option>
+              </select>
+            </label>
+            <label>
+              <span>Modello</span>
+              <select id="model" name="model">
+                <option value="gemini-3.1-flash-image-preview">Nano Banana 2 - gemini-3.1-flash-image-preview</option>
+                <option value="gemini-3-pro-image-preview">Gemini 3 Pro Image Preview</option>
+                <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
+              </select>
+            </label>
+          </div>
+          <div id="apiDiagnostics" class="diagnostics" aria-live="polite"></div>
+        </section>
+
+        <section class="setting-group">
+          <div class="setting-head">
+            <h2>Output</h2>
+            <span class="mini-note">fino a 4 richieste parallele</span>
+          </div>
+          <div class="setting-grid output-grid">
+            <label>
+              <span>Numero immagini</span>
+              <select id="imageCount" name="imageCount">
+                <option value="1">1 immagine</option>
+                <option value="2">2 immagini</option>
+                <option value="3">3 immagini</option>
+                <option value="4">4 immagini</option>
+              </select>
+            </label>
+            <label>
+              <span>Formato tela</span>
+              <select id="aspectRatio" name="aspectRatio">
+                <option value="auto">Auto</option>
+                <option value="1:1">1:1 quadrato</option>
+                <option value="1:4">1:4 verticale extra</option>
+                <option value="1:8">1:8 verticale ultra</option>
+                <option value="2:3">2:3 verticale</option>
+                <option value="3:2">3:2 orizzontale</option>
+                <option value="3:4">3:4 verticale</option>
+                <option value="4:1">4:1 orizzontale extra</option>
+                <option value="4:3">4:3 orizzontale</option>
+                <option value="4:5">4:5 verticale</option>
+                <option value="5:4">5:4 orizzontale</option>
+                <option value="8:1">8:1 orizzontale ultra</option>
+                <option value="9:16">9:16 verticale</option>
+                <option value="16:9">16:9 orizzontale</option>
+                <option value="21:9">21:9 panoramico</option>
+              </select>
+            </label>
+            <label>
+              <span>File output</span>
+              <select id="outputMimeType" name="outputMimeType">
+                <option value="image/png">PNG</option>
+                <option value="image/jpeg">JPEG</option>
+              </select>
+            </label>
+            <label>
+              <span>Dimensione</span>
+              <select id="imageSize" name="imageSize">
+                <option value="auto">Auto</option>
+                <option value="512">512 px</option>
+                <option value="1K">1K</option>
+                <option value="2K">2K</option>
+                <option value="4K">4K</option>
+              </select>
+            </label>
+            <label class="quality-field">
+              <span>Qualita JPEG <output id="jpegQualityValue">90</output></span>
+              <input id="jpegQuality" name="jpegQuality" type="range" min="0" max="100" value="90">
+            </label>
+          </div>
+        </section>
+      </form>
+    </header>
+
+    <main class="layout">
+      <section class="workbench" aria-label="Interfacce">
+        <nav class="tabs" aria-label="Seleziona interfaccia">
+          <button class="tab is-active" type="button" data-tab="swap"><span>01</span><strong>Sostituisci persona</strong></button>
+          <button class="tab" type="button" data-tab="pose"><span>02</span><strong>Nuova posa</strong></button>
+          <button class="tab" type="button" data-tab="background"><span>03</span><strong>Persona nel background</strong></button>
+          <button class="tab" type="button" data-tab="video"><span>04</span><strong>Video Studio</strong></button>
+        </nav>
+
+        <section class="panel is-active" data-panel="swap">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">Interfaccia 1</p>
+              <h2>Sostituzione persona</h2>
+            </div>
+            <button type="button" class="primary" data-generate="swap">Genera</button>
+          </div>
+          <div class="slot-grid two">
+            <div class="slot" data-slot="swapBase">
+              <div class="slot-copy">
+                <strong>Persona 1 - immagine base</strong>
+                <span>posa, background, luce e camera restano quelli di questa immagine</span>
+              </div>
+              <input type="file" accept="image/*" data-file="swapBase">
+              <select data-library="swapBase" aria-label="Scegli Persona 1 dalla libreria"></select>
+              <div class="uri-row">
+                <input data-uri-input="swapBase" placeholder="oppure gs://bucket/file.png o URL https">
+                <button type="button" class="secondary" data-uri-button="swapBase">Usa URI</button>
+              </div>
+              <div class="preview" data-preview="swapBase"></div>
+            </div>
+            <div class="slot" data-slot="swapIdentity">
+              <div class="slot-copy">
+                <strong>Persona 2 - identita da inserire</strong>
+                <span>volto e corpo devono arrivare da questa immagine</span>
+              </div>
+              <input type="file" accept="image/*" data-file="swapIdentity">
+              <select data-library="swapIdentity" aria-label="Scegli Persona 2 dalla libreria"></select>
+              <div class="uri-row">
+                <input data-uri-input="swapIdentity" placeholder="oppure gs://bucket/file.png o URL https">
+                <button type="button" class="secondary" data-uri-button="swapIdentity">Usa URI</button>
+              </div>
+              <div class="preview" data-preview="swapIdentity"></div>
+            </div>
+          </div>
+          <label class="prompt-box">
+            <span>Prompt in inglese</span>
+            <textarea readonly data-prompt="swap"></textarea>
+          </label>
+        </section>
+
+        <section class="panel" data-panel="pose">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">Interfaccia 2</p>
+              <h2>Stessa persona, nuova posa</h2>
+            </div>
+            <button type="button" class="primary" data-generate="pose">Genera</button>
+          </div>
+          <div class="slot-grid one">
+            <div class="slot" data-slot="poseSource">
+              <div class="slot-copy">
+                <strong>Immagine sorgente</strong>
+                <span>puoi caricare una nuova immagine o usare una generata</span>
+              </div>
+              <input type="file" accept="image/*" data-file="poseSource">
+              <select data-library="poseSource" aria-label="Scegli immagine sorgente dalla libreria"></select>
+              <div class="uri-row">
+                <input data-uri-input="poseSource" placeholder="oppure gs://bucket/file.png o URL https">
+                <button type="button" class="secondary" data-uri-button="poseSource">Usa URI</button>
+              </div>
+              <div class="preview" data-preview="poseSource"></div>
+            </div>
+          </div>
+          <label class="prompt-box">
+            <span>Prompt in inglese</span>
+            <textarea readonly data-prompt="pose"></textarea>
+          </label>
+        </section>
+
+        <section class="panel" data-panel="background">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">Interfaccia 3</p>
+              <h2>Inserisci persona nel background</h2>
+            </div>
+            <button type="button" class="primary" data-generate="background">Genera</button>
+          </div>
+          <div class="slot-grid two">
+            <div class="slot" data-slot="backgroundScene">
+              <div class="slot-copy">
+                <strong>Background 1</strong>
+                <span>sfondo in cui inserire la persona</span>
+              </div>
+              <input type="file" accept="image/*" data-file="backgroundScene">
+              <select data-library="backgroundScene" aria-label="Scegli background dalla libreria"></select>
+              <div class="uri-row">
+                <input data-uri-input="backgroundScene" placeholder="oppure gs://bucket/file.png o URL https">
+                <button type="button" class="secondary" data-uri-button="backgroundScene">Usa URI</button>
+              </div>
+              <div class="preview" data-preview="backgroundScene"></div>
+            </div>
+            <div class="slot" data-slot="backgroundPerson">
+              <div class="slot-copy">
+                <strong>Persona 2</strong>
+                <span>persona da mantenere identica e proporzionata</span>
+              </div>
+              <input type="file" accept="image/*" data-file="backgroundPerson">
+              <select data-library="backgroundPerson" aria-label="Scegli persona dalla libreria"></select>
+              <div class="uri-row">
+                <input data-uri-input="backgroundPerson" placeholder="oppure gs://bucket/file.png o URL https">
+                <button type="button" class="secondary" data-uri-button="backgroundPerson">Usa URI</button>
+              </div>
+              <div class="preview" data-preview="backgroundPerson"></div>
+            </div>
+          </div>
+          <label class="prompt-box">
+            <span>Prompt in inglese</span>
+            <textarea readonly data-prompt="background"></textarea>
+          </label>
+        </section>
+
+        <section class="panel" data-panel="video">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">Interfaccia 4</p>
+              <h2>Video Studio - analizza, prompta, riusa</h2>
+            </div>
+            <button type="button" class="primary" id="analyzeVideo" disabled>Analizza video</button>
+          </div>
+
+          <div class="video-grid">
+            <section class="video-source">
+              <div class="slot-copy">
+                <strong>Carica un video</strong>
+                <span>MP4, MOV, WEBM, fino a circa 20 MB. Il backend lo manda a Gemini per analisi e composizione prompt.</span>
+              </div>
+              <input type="file" accept="video/*" id="videoFile">
+              <div class="video-player-wrap">
+                <video id="videoPlayer" controls preload="metadata"></video>
+              </div>
+              <div class="video-controls">
+                <label class="video-meta">
+                  <span>Frame attuale</span>
+                  <output id="videoCurrentTime">0.00s</output>
+                </label>
+                <label class="video-meta">
+                  <span>Durata</span>
+                  <output id="videoDuration">--</output>
+                </label>
+                <button type="button" class="secondary" id="extractFrameNow">Estrai frame qui</button>
+                <button type="button" class="secondary" id="seekBestFrame" disabled>Vai al frame consigliato</button>
+              </div>
+
+              <div class="video-frame-card">
+                <strong>Frame estratto</strong>
+                <div class="preview" id="videoFramePreview"><span>Nessun frame estratto.</span></div>
+                <div class="video-frame-actions">
+                  <button type="button" class="asset-action" data-send-frame="swapBase">Usa come base swap</button>
+                  <button type="button" class="asset-action" data-send-frame="swapIdentity">Usa come identita swap</button>
+                  <button type="button" class="asset-action" data-send-frame="poseSource">Usa come pose source</button>
+                  <button type="button" class="asset-action" data-send-frame="backgroundScene">Usa come background</button>
+                  <button type="button" class="asset-action" data-send-frame="backgroundPerson">Usa come persona</button>
+                  <button type="button" class="asset-action" id="addFrameToLibrary">Salva in libreria</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="video-output">
+              <div class="setting-grid video-config">
+                <label>
+                  <span>Modello analisi video</span>
+                  <select id="videoAnalysisModel">
+                    <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview (consigliato)</option>
+                    <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+                    <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite (rapido)</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Istruzione extra (opzionale)</span>
+                  <input id="videoCustomInstruction" placeholder="es. enfatizza il volto, voglio uno stile cinematografico">
+                </label>
+              </div>
+
+              <article class="video-analysis-card" id="videoAnalysisSummary" hidden>
+                <header><strong>Analisi</strong><span id="videoAnalysisMeta"></span></header>
+                <p id="videoAnalysisText"></p>
+                <ul class="video-analysis-tags" id="videoAnalysisTags"></ul>
+              </article>
+
+              <div class="prompt-pair" id="promptPair" hidden>
+                <article class="prompt-card">
+                  <header>
+                    <strong>Seedance 2.0</strong>
+                    <span>Subject - Action - Environment - Camera - Style - Avoid (60-100 parole)</span>
+                  </header>
+                  <textarea id="seedancePrompt" rows="8"></textarea>
+                  <div class="prompt-actions">
+                    <button type="button" class="secondary compact" data-copy-prompt="seedance">Copia</button>
+                  </div>
+                </article>
+                <article class="prompt-card">
+                  <header>
+                    <strong>Kling 3.0</strong>
+                    <span>Subject Anchor - Shot+Action - Environment & Lighting - Constraints / Style Bible</span>
+                  </header>
+                  <textarea id="klingPrompt" rows="8"></textarea>
+                  <div class="prompt-actions">
+                    <button type="button" class="secondary compact" data-copy-prompt="kling">Copia</button>
+                  </div>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side" aria-label="Libreria e risultati">
+        <section class="status-strip" id="status">Pronto. Nessun limite locale di MB; eventuali limiti reali arrivano da Vertex.</section>
+
+        <section class="result-box">
+          <div class="section-head">
+            <h2>Risultato</h2>
+            <button type="button" class="secondary" id="clearResults">Pulisci</button>
+          </div>
+          <div id="resultText" class="result-text"></div>
+          <div id="results" class="result-grid empty">Le immagini generate appariranno qui.</div>
+        </section>
+
+        <section class="library-box">
+          <div class="section-head">
+            <h2>Libreria condivisa</h2>
+            <button type="button" class="secondary" id="clearLibrary">Svuota</button>
+          </div>
+          <div id="assetList" class="asset-list empty">Carica immagini o genera un risultato per popolare la libreria.</div>
+        </section>
+      </aside>
+    </main>
+
+    <div class="image-modal" id="imageModal" hidden>
+      <div class="image-modal-backdrop" data-close-modal></div>
+      <section
+        class="image-modal-panel"
+        id="imageModalDialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="imageModalTitle"
+      >
+        <div class="image-modal-bar">
+          <strong id="imageModalTitle">Anteprima</strong>
+          <div class="image-modal-actions">
+            <button type="button" class="secondary compact" id="zoomOut">-</button>
+            <button type="button" class="secondary compact" id="zoomReset">100%</button>
+            <button type="button" class="secondary compact" id="zoomIn">+</button>
+            <button type="button" class="secondary compact" data-close-modal>Chiudi</button>
+          </div>
+        </div>
+        <div class="image-modal-canvas" id="imageModalCanvas">
+          <img id="imageModalImage" alt="Anteprima ingrandita">
+        </div>
+      </section>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

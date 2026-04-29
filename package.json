@@ -1,0 +1,25 @@
+{
+  "name": "nanobanana-vertex-tool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local UI for Vertex AI Nano Banana image workflows.",
+  "scripts": {
+    "start": "node --max-old-space-size=8192 dev-server.js",
+    "dev": "node --max-old-space-size=8192 dev-server.js",
+    "vercel-build": "echo \"static + serverless project - no build step\"",
+    "test:smoke": "node scripts/smoke-test.js",
+    "test:preview": "node preview-fit-test.js",
+    "test:pose": "node tests/pose-test.js",
+    "test:full": "node tests/full-ui-suite.js",
+    "test:backend": "node tests/backend-suite.js",
+    "test:video": "node tests/video-suite.js",
+    "test:e2e": "node e2e-ui-test.js",
+    "playwright:install": "npx playwright install chromium"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}

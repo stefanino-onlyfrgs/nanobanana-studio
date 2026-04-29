@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "public": false,
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "framework": null,
+  "functions": {
+    "api/generate.js": { "maxDuration": 60 },
+    "api/analyze-video.js": { "maxDuration": 60 },
+    "api/test-key.js": { "maxDuration": 30 },
+    "api/health.js": { "maxDuration": 5 }
+  }
+}

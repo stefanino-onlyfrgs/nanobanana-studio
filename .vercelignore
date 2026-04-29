@@ -1,0 +1,11 @@
+node_modules
+.cursor
+tests
+scripts
+screenshots
+server.log
+server.err
+*.log
+*.err
+DEVELOPER_HANDOFF.md
+diagnostic-nanobanana.js
